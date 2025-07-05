@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindMed AI - Your Mental Health Companion</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --accent: #4facfe;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --bg-dark: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.8);
+            --text-light: #f6f7f8;
+            --text-muted: #f4f5f6;
+            --border-glass: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #f5576c);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            z-index: -1;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: bold;
+            background: var(--primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+        }
+
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .emotion-detection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .media-display {
+            position: relative;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        #videoElement {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 15px;
+        }
+
+        .emotion-overlay {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .control-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .emotion-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .emotion-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .emotion-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .emotion-icon {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .emotion-name {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .emotion-percentage {
+            font-size: 1.2rem;
+            color: var(--accent);
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .game-icon {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .game-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .game-description {
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .game-container {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+        }
+
+        .breathing-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: var(--primary);
+            margin: 2rem auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: transform 4s ease-in-out;
+        }
+
+        .breathing-circle.inhale {
+            transform: scale(1.3);
+        }
+
+        .breathing-circle.exhale {
+            transform: scale(0.8);
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .chatbot-container {
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            margin-bottom: 1rem;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 15px;
+            max-width: 80%;
+        }
+
+        .message.user {
+            background: var(--primary);
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .message.bot {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 1rem;
+            border: 1px solid var(--border-glass);
+            border-radius: 25px;
+            background: var(--bg-card);
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+
+        .achievements {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .achievement-badge {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            opacity: 0.5;
+        }
+
+        .achievement-badge.unlocked {
+            opacity: 1;
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        .achievement-icon {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .achievement-name {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .mood-timeline {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .mood-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .mood-time {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .status-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 0.5rem 1rem;
+            background: var(--bg-card);
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .puzzle-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2px;
+            width: 300px;
+            height: 300px;
+            margin: 2rem auto;
+            background: #333;
+            border-radius: 10px;
+            padding: 2px;
+        }
+
+        .puzzle-piece {
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .puzzle-piece:hover {
+            transform: scale(1.05);
+        }
+
+        .puzzle-piece.empty {
+            background: transparent;
+        }
+
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            width: 320px;
+            margin: 2rem auto;
+        }
+
+        .memory-card {
+            width: 70px;
+            height: 70px;
+            background: var(--bg-card);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .memory-card:hover {
+            transform: scale(1.05);
+        }
+
+        .memory-card .card-front {
+            display: none;
+        }
+
+        .memory-card.flipped .card-back {
+            display: none;
+        }
+
+        .memory-card.flipped .card-front {
+            display: block;
+            font-size: 1.5rem;
+        }
+
+        .memory-card.matched {
+            background: var(--success);
+        }
+
+        .color-palette {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .color-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .color-btn:hover,
+        .color-btn.active {
+            border-color: white;
+            transform: scale(1.1);
+        }
+
+        .canvas-container {
+            border: 2px solid var(--border-glass);
+            border-radius: 15px;
+            margin: 1rem auto;
+            display: inline-block;
+        }
+
+        #drawingCanvas {
+            border-radius: 15px;
+            background: white;
+            cursor: crosshair;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .emotion-detection {
+                grid-template-columns: 1fr;
+            }
+            
+            .game-stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="animated-bg"></div>
+    
+    <header>
+        <div class="main-container">
+            <h1 class="logo">🧠 MindMed AI</h1>
+            <p class="tagline">Your Intelligent Mental Health Companion</p>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <nav class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('detection')">🎭 Emotion Detection</button>
+            <button class="tab-btn" onclick="switchTab('dashboard')">📊 Dashboard</button>
+            <button class="tab-btn" onclick="switchTab('chatbot')">💬 AI Companion</button>
+            <button class="tab-btn" onclick="switchTab('games')">🎮 Therapeutic Games</button>
+            <button class="tab-btn" onclick="switchTab('achievements')">🏆 Achievements</button>
+        </nav>
+
+        <!-- Emotion Detection Tab -->
+        <div id="detection" class="tab-content active">
+            <div class="glass-card">
+                <h2 style="text-align: center; margin-bottom: 2rem; background: var(--primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                    🎭 Real-time Emotion Detection
+                </h2>
+                
+                <div class="emotion-detection">
+                    <div class="camera-section glass-card">
+                        <h3>📷 Facial Expression Analysis</h3>
+                        <div class="media-display">
+                            <video id="videoElement" autoplay muted playsinline style="display: none;"></video>
+                            <canvas id="analysisCanvas" style="position: absolute; top: 0; left: 0; display: none;"></canvas>
+                            <div id="cameraPlaceholder" style="font-size: 4rem; opacity: 0.3;">📷</div>
+                            <div class="emotion-overlay" id="faceEmotion">Emotion: Ready to analyze</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <button class="control-btn" id="startCamera" onclick="startCamera()">Start Camera</button>
+                            <button class="control-btn" id="stopCamera" onclick="stopCamera()" disabled>Stop Camera</button>
+                        </div>
+                    </div>
+
+                    <div class="audio-section glass-card">
+                        <h3>🎤 Voice Tone Analysis</h3>
+                        <div class="media-display">
+                            <div style="font-size: 4rem; opacity: 0.3;">🎤</div>
+                            <div class="emotion-overlay" id="voiceEmotion">Voice: Ready to listen</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <button class="control-btn" id="startAudio" onclick="startAudio()">Start Listening</button>
+                            <button class="control-btn" id="stopAudio" onclick="stopAudio()" disabled>Stop Listening</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card">
+                    <h3>💭 Text Sentiment Analysis</h3>
+                    <div style="margin-bottom: 1rem;">
+                        <textarea id="textInput" placeholder="Type how you're feeling..." 
+                                style="width: 100%; height: 100px; padding: 1rem; border: 1px solid var(--border-glass); 
+                                       border-radius: 15px; background: var(--bg-card); color: var(--text-light); 
+                                       font-size: 1rem; resize: vertical; backdrop-filter: blur(10px);" 
+                                oninput="analyzeText()"></textarea>
+                    </div>
+                    <div id="textEmotion" style="padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 10px; text-align: center;">
+                        Text sentiment will appear here...
+                    </div>
+                </div>
+
+                <div class="emotion-stats" id="emotionStats">
+                    <div class="emotion-card">
+                        <span class="emotion-icon">😊</span>
+                        <div class="emotion-name">Happy</div>
+                        <div class="emotion-percentage" id="happyPercent">0%</div>
+                    </div>
+                    <div class="emotion-card">
+                        <span class="emotion-icon">😢</span>
+                        <div class="emotion-name">Sad</div>
+                        <div class="emotion-percentage" id="sadPercent">0%</div>
+                    </div>
+                    <div class="emotion-card">
+                        <span class="emotion-icon">😠</span>
+                        <div class="emotion-name">Angry</div>
+                        <div class="emotion-percentage" id="angryPercent">0%</div>
+                    </div>
+                    <div class="emotion-card">
+                        <span class="emotion-icon">😨</span>
+                        <div class="emotion-name">Fear</div>
+                        <div class="emotion-percentage" id="fearPercent">0%</div>
+                    </div>
+                    <div class="emotion-card">
+                        <span class="emotion-icon">😐</span>
+                        <div class="emotion-name">Neutral</div>
+                        <div class="emotion-percentage" id="neutralPercent">0%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content">
+            <div class="dashboard-grid">
+                <div class="glass-card">
+                    <h3>📈 Emotion Timeline</h3>
+                    <div class="chart-container">
+                        <canvas id="emotionChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+                <div class="glass-card">
+                    <h3>🕒 Recent Mood Entries</h3>
+                    <div class="mood-timeline" id="moodTimeline">
+                        <div class="mood-entry">
+                            <span>😊 Feeling optimistic</span>
+                            <span class="mood-time">2 hours ago</span>
+                        </div>
+                        <div class="mood-entry">
+                            <span>😌 Calm and relaxed</span>
+                            <span class="mood-time">5 hours ago</span>
+                        </div>
+                        <div class="mood-entry">
+                            <span>🤗 Excited about projects</span>
+                            <span class="mood-time">1 day ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3>🎯 Personalized Recommendations</h3>
+                <div id="recommendations" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                    <div style="background: rgba(16, 185, 129, 0.1); padding: 1.5rem; border-radius: 15px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                        <h4>🧘‍♀️ Mindfulness Suggestion</h4>
+                        <p>Try a 5-minute breathing exercise to maintain your positive mood.</p>
+                    </div>
+                    <div style="background: rgba(79, 172, 254, 0.1); padding: 1.5rem; border-radius: 15px; border: 1px solid rgba(79, 172, 254, 0.3);">
+                        <h4>🎵 Music Therapy</h4>
+                        <p>Listen to uplifting music to boost your energy levels.</p>
+                    </div>
+                    <div style="background: rgba(245, 158, 11, 0.1); padding: 1.5rem; border-radius: 15px; border: 1px solid rgba(245, 158, 11, 0.3);">
+                        <h4>🌿 Nature Connection</h4>
+                        <p>Spend 10 minutes outdoors to enhance your well-being.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chatbot Tab -->
+        <div id="chatbot" class="tab-content">
+            <div class="glass-card">
+                <h2 style="text-align: center; margin-bottom: 2rem; background: var(--primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                    💬 AI Mental Health Companion
+                </h2>
+                
+                <div class="chatbot-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message bot">
+                            <p>Hi there! I'm your AI companion. I'm here to listen and support you. How are you feeling today? 🌟</p>
+                        </div>
+                    </div>
+                    <div class="chat-input-container">
+                        <input type="text" class="chat-input" id="chatInput" placeholder="Share your thoughts..." onkeypress="handleChatKeyPress(event)">
+                        <button class="control-btn" onclick="sendMessage()">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Games Tab -->
+        <div id="games" class="tab-content">
+            <div class="glass-card">
+                <h2 style="text-align: center; margin-bottom: 2rem; background: var(--primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                    🎮 Therapeutic Games & Activities
+                </h2>
+                
+                <div class="game-card" onclick="startBreathingExercise()">
+                    <span class="game-icon">🫁</span>
+                    <div class="game-title">Breathing Exercise</div>
+                    <div class="game-description">Guided breathing to reduce stress and anxiety</div>
+                    <button class="control-btn">Start Exercise</button>
+                </div>
+
+                <div class="game-card" onclick="startPuzzleGame()">
+                    <span class="game-icon">🧩</span>
+                    <div class="game-title">Sliding Puzzle</div>
+                    <div class="game-description">Improve focus and cognitive function</div>
+                    <button class="control-btn">Play Puzzle</button>
+                </div>
+
+                <div class="game-card" onclick="startDrawingTherapy()">
+                    <span class="game-icon">🎨</span>
+                    <div class="game-title">Art Therapy</div>
+                    <div class="game-description">Express emotions through creative drawing</div>
+                    <button class="control-btn">Start Drawing</button>
+                </div>
+
+                <div class="game-card" onclick="startMemoryGame()">
+                    <span class="game-icon">🧠</span>
+                    <div class="game-title">Memory Challenge</div>
+                    <div class="game-description">Enhance memory and concentration</div>
+                    <button class="control-btn">Play Memory</button>
+                </div>
+
+                <div class="game-card" onclick="startMoodJournal()">
+                    <span class="game-icon">📝</span>
+                    <div class="game-title">Mood Journal</div>
+                    <div class="game-description">Track and reflect on your emotions</div>
+                    <button class="control-btn">Write Journal</button>
+                </div>
+            </div>
+
+            <!-- Game Containers -->
+            <div id="breathingGame" class="game-container" style="display: none;">
+                <h3>🫁 Breathing Exercise</h3>
+                <div class="breathing-exercise">
+                    <p>Follow the circle with your breathing. Inhale as it grows, exhale as it shrinks.</p>
+                    <div class="breathing-circle" id="breathingCircle">
+                        <span id="breathingText">Click Start</span>
+                    </div>
+                    <div style="text-align: center;">
+                        <button class="control-btn" id="breathingStart" onclick="toggleBreathing()">Start</button>
+                    </div>
+                    <div class="game-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="breathingRounds">0</div>
+                            <div>Rounds</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="breathingTime">0:00</div>
+                            <div>Time</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="puzzleGame" class="game-container" style="display: none;">
+                <h3>🧩 Sliding Puzzle</h3>
+                <div style="text-align: center;">
+                    <div class="game-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="puzzleMoves">0</div>
+                            <div>Moves</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="puzzleTime">0:00</div>
+                            <div>Time</div>
+                        </div>
+                    </div>
+                    <div class="puzzle-grid" id="puzzleGrid"></div>
+                    <button class="control-btn" onclick="shufflePuzzle()">New Game</button>
+                </div>
+            </div>
+
+            <div id="drawingGame" class="game-container" style="display: none;">
+                <h3>🎨 Art Therapy</h3>
+                <div style="text-align: center;">
+                    <p>Express your emotions through art. Let your feelings guide your brush.</p>
+                    <div class="color-palette">
+                        <div class="color-btn active" style="background: #000000;" onclick="setDrawingColor('#000000')"></div>
+                        <div class="color-btn" style="background: #ff0000;" onclick="setDrawingColor('#ff0000')"></div>
+                        <div class="color-btn" style="background: #00ff00;" onclick="setDrawingColor('#00ff00')"></div>
+                        <div class="color-btn" style="background: #0000ff;" onclick="setDrawingColor('#0000ff')"></div>
+                        <div class="color-btn" style="background: #ffff00;" onclick="setDrawingColor('#ffff00')"></div>
+                        <div class="color-btn" style="background: #ff00ff;" onclick="setDrawingColor('#ff00ff')"></div>
+                        <div class="color-btn" style="background: #00ffff;" onclick="setDrawingColor('#00ffff')"></div>
+                        <div class="color-btn" style="background: #ffa500;" onclick="setDrawingColor('#ffa500')"></div>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="drawingCanvas" width="560" height="400"></canvas>
+                    </div>
+                    <div>
+                        <button class="control-btn" onclick="clearCanvas()">Clear</button>
+                        <button class="control-btn" onclick="saveDrawing()">Save Drawing</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="memoryGame" class="game-container" style="display: none;">
+                <h3>🧠 Memory Challenge</h3>
+                <div style="text-align: center;">
+                    <div class="game-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="memoryScore">0</div>
+                            <div>Score</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="memoryAttempts">0</div>
+                            <div>Attempts</div>
+                        </div>
+                    </div>
+                    <div class="memory-grid" id="memoryGrid"></div>
+                    <button class="control-btn" onclick="startNewMemoryGame()">New Game</button>
+                </div>
+            </div>
+
+            <div id="journalGame" class="game-container" style="display: none;">
+                <h3>📝 Mood Journal</h3>
+                <div style="margin-bottom: 2rem;">
+                    <label for="moodSlider" style="display: block; margin-bottom: 1rem;">How are you feeling? (1-10)</label>
+                    <input type="range" id="moodSlider" min="1" max="10" value="5" style="width: 100%; margin-bottom: 1rem;">
+                    <div id="moodValue" style="text-align: center; font-size: 1.2rem; color: var(--accent);">5</div>
+                </div>
+                <div style="margin-bottom: 2rem;">
+                    <label for="journalEntry" style="display: block; margin-bottom: 1rem;">What's on your mind?</label>
+                    <textarea id="journalEntry" placeholder="Write about your day, feelings, or thoughts..." 
+                            style="width: 100%; height: 200px; padding: 1rem; border: 1px solid var(--border-glass); 
+                                   border-radius: 15px; background: var(--bg-card); color: var(--text-light); 
+                                   font-size: 1rem; resize: vertical; backdrop-filter: blur(10px);"></textarea>
+                </div>
+                <div style="text-align: center;">
+                    <button class="control-btn" onclick="saveJournalEntry()">Save Entry</button>
+                    <button class="control-btn" onclick="viewJournalHistory()">View History</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievements Tab -->
+        <div id="achievements" class="tab-content">
+            <div class="glass-card">
+                <h2 style="text-align: center; margin-bottom: 2rem; background: var(--primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                    🏆 Your Achievements
+                </h2>
+                
+                <div class="achievements" id="achievementsList">
+                    <div class="achievement-badge unlocked">
+                        <span class="achievement-icon">🌟</span>
+                        <div class="achievement-name">First Steps</div>
+                        <div class="achievement-description">Started your mental health journey</div>
+                    </div>
+                    <div class="achievement-badge">
+                        <span class="achievement-icon">🎯</span>
+                        <div class="achievement-name">Goal Setter</div>
+                        <div class="achievement-description">Set your first wellness goal</div>
+                    </div>
+                    <div class="achievement-badge">
+                        <span class="achievement-icon">🧘</span>
+                        <div class="achievement-name">Zen Master</div>
+                        <div class="achievement-description">Complete 10 breathing exercises</div>
+                    </div>
+                    <div class="achievement-badge">
+                        <span class="achievement-icon">📝</span>
+                        <div class="achievement-name">Reflective Writer</div>
+                        <div class="achievement-description">Write 5 journal entries</div>
+                    </div>
+                    <div class="achievement-badge">
+                        <span class="achievement-icon">🎨</span>
+                        <div class="achievement-name">Creative Soul</div>
+                        <div class="achievement-description">Complete an art therapy session</div>
+                    </div>
+                    <div class="achievement-badge">
+                        <span class="achievement-icon">🧠</span>
+                        <div class="achievement-name">Sharp Mind</div>
+                        <div class="achievement-description">Score 80% in memory game</div>
+                    </div>
+                    <div class="achievement-badge">
+                        <span class="achievement-icon">💪</span>
+                        <div class="achievement-name">Consistent Helper</div>
+                        <div class="achievement-description">Use the app for 7 days straight</div>
+                    </div>
+                    <div class="achievement-badge">
+                        <span class="achievement-icon">🌈</span>
+                        <div class="achievement-name">Mood Tracker</div>
+                        <div class="achievement-description">Track emotions for 14 days</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentTab = 'detection';
+        let emotionData = {
+            happy: 0,
+            sad: 0,
+            angry: 0,
+            fear: 0,
+            neutral: 0
+        };
+        let isBreathing = false;
+        let breathingInterval;
+        let breathingRounds = 0;
+        let breathingStartTime;
+        let puzzleState = [];
+        let puzzleMoves = 0;
+        let puzzleStartTime;
+        let currentDrawingColor = '#000000';
+        let isDrawing = false;
+        let memoryCards = [];
+        let memoryFlippedCards = [];
+        let memoryScore = 0;
+        let memoryAttempts = 0;
+        let journalEntries = [];
+        let achievements = [];
+        let mediaRecorder;
+        let audioContext;
+        let analyser;
+        let dataArray;
+
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            currentTab = tabName;
+        }
+
+        // Camera functions
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const video = document.getElementById('videoElement');
+                video.srcObject = stream;
+                video.style.display = 'block';
+                document.getElementById('cameraPlaceholder').style.display = 'none';
+                document.getElementById('startCamera').disabled = true;
+                document.getElementById('stopCamera').disabled = false;
+                
+                // Start emotion detection simulation
+                startEmotionDetection();
+            } catch (err) {
+                console.error('Error accessing camera:', err);
+                updateSystemStatus('Camera access denied');
+            }
+        }
+
+        function stopCamera() {
+            const video = document.getElementById('videoElement');
+            const stream = video.srcObject;
+            if (stream) {
+                const tracks = stream.getTracks();
+                tracks.forEach(track => track.stop());
+            }
+            video.style.display = 'none';
+            document.getElementById('cameraPlaceholder').style.display = 'block';
+            document.getElementById('startCamera').disabled = false;
+            document.getElementById('stopCamera').disabled = true;
+            document.getElementById('faceEmotion').textContent = 'Emotion: Camera stopped';
+        }
+
+        // Audio functions
+        async function startAudio() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                const source = audioContext.createMediaStreamSource(stream);
+                source.connect(analyser);
+                
+                analyser.fftSize = 256;
+                const bufferLength = analyser.frequencyBinCount;
+                dataArray = new Uint8Array(bufferLength);
+                
+                document.getElementById('startAudio').disabled = true;
+                document.getElementById('stopAudio').disabled = false;
+                
+                // Start voice analysis simulation
+                startVoiceAnalysis();
+            } catch (err) {
+                console.error('Error accessing microphone:', err);
+                updateSystemStatus('Microphone access denied');
+            }
+        }
+
+        function stopAudio() {
+            if (audioContext) {
+                audioContext.close();
+            }
+            document.getElementById('startAudio').disabled = false;
+            document.getElementById('stopAudio').disabled = true;
+            document.getElementById('voiceEmotion').textContent = 'Voice: Microphone stopped';
+        }
+
+        // Emotion detection simulation
+        function startEmotionDetection() {
+            setInterval(() => {
+                if (document.getElementById('videoElement').style.display === 'block') {
+                    const emotions = ['happy', 'sad', 'angry', 'fear', 'neutral'];
+                    const randomEmotion = emotions[Math.floor(Math.random() * emotions.length)];
+                    const confidence = Math.floor(Math.random() * 40) + 60;
+                    
+                    document.getElementById('faceEmotion').textContent = `Emotion: ${randomEmotion} (${confidence}%)`;
+                    updateEmotionData(randomEmotion, confidence);
+                }
+            }, 2000);
+        }
+
+        function startVoiceAnalysis() {
+            setInterval(() => {
+                if (audioContext && audioContext.state === 'running') {
+                    const emotions = ['calm', 'excited', 'stressed', 'cheerful', 'tired'];
+                    const randomEmotion = emotions[Math.floor(Math.random() * emotions.length)];
+                    const confidence = Math.floor(Math.random() * 30) + 70;
+                    
+                    document.getElementById('voiceEmotion').textContent = `Voice: ${randomEmotion} (${confidence}%)`;
+                }
+            }, 3000);
+        }
+
+        // Text sentiment analysis
+        function analyzeText() {
+            const text = document.getElementById('textInput').value;
+            if (!text.trim()) {
+                document.getElementById('textEmotion').textContent = 'Text sentiment will appear here...';
+                return;
+            }
+
+            // Simple sentiment analysis simulation
+            const positiveWords = ['happy', 'good', 'great', 'amazing', 'wonderful', 'love', 'excited', 'joy'];
+            const negativeWords = ['sad', 'bad', 'terrible', 'awful', 'hate', 'angry', 'depressed', 'upset'];
+            
+            const words = text.toLowerCase().split(' ');
+            let positiveCount = 0;
+            let negativeCount = 0;
+            
+            words.forEach(word => {
+                if (positiveWords.includes(word)) positiveCount++;
+                if (negativeWords.includes(word)) negativeCount++;
+            });
+            
+            let sentiment = 'neutral';
+            if (positiveCount > negativeCount) sentiment = 'positive';
+            else if (negativeCount > positiveCount) sentiment = 'negative';
+            
+            document.getElementById('textEmotion').textContent = `Sentiment: ${sentiment} (${Math.floor(Math.random() * 30) + 70}% confidence)`;
+        }
+
+        // Update emotion data
+        function updateEmotionData(emotion, confidence) {
+            emotionData[emotion] = Math.min(100, emotionData[emotion] + confidence / 10);
+            
+            // Decay other emotions
+            Object.keys(emotionData).forEach(key => {
+                if (key !== emotion) {
+                    emotionData[key] = Math.max(0, emotionData[key] - 2);
+                }
+            });
+            
+            // Update display
+            document.getElementById('happyPercent').textContent = Math.round(emotionData.happy) + '%';
+            document.getElementById('sadPercent').textContent = Math.round(emotionData.sad) + '%';
+            document.getElementById('angryPercent').textContent = Math.round(emotionData.angry) + '%';
+            document.getElementById('fearPercent').textContent = Math.round(emotionData.fear) + '%';
+            document.getElementById('neutralPercent').textContent = Math.round(emotionData.neutral) + '%';
+        }
+
+        // Chatbot functions
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message
+            addChatMessage(message, 'user');
+            input.value = '';
+            
+            // Generate bot response
+            setTimeout(() => {
+                const botResponse = generateBotResponse(message);
+                addChatMessage(botResponse, 'bot');
+            }, 1000);
+        }
+
+        function addChatMessage(message, sender) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', sender);
+            messageDiv.innerHTML = `<p>${message}</p>`;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function generateBotResponse(userMessage) {
+            const responses = {
+                'hello': 'Hello! I\'m here to support you. How can I help you today?',
+                'sad': 'I\'m sorry you\'re feeling sad. Would you like to talk about what\'s bothering you? Sometimes sharing can help.',
+                'happy': 'That\'s wonderful to hear! I\'m glad you\'re feeling happy. What\'s bringing you joy today?',
+                'stressed': 'Stress can be overwhelming. Have you tried our breathing exercises? They might help you feel more centered.',
+                'anxious': 'Anxiety can be challenging. Remember to take deep breaths. Would you like me to guide you through a calming technique?',
+                'angry': 'It\'s okay to feel angry sometimes. What would help you process these feelings in a healthy way?',
+                'tired': 'Rest is important for mental health. Are you getting enough sleep? Let\'s talk about healthy sleep habits.',
+                'default': 'I hear you. Your feelings are valid. Would you like to explore this further or try one of our therapeutic activities?'
+            };
+            
+            const lowerMessage = userMessage.toLowerCase();
+            for (const [key, response] of Object.entries(responses)) {
+                if (lowerMessage.includes(key)) {
+                    return response;
+                }
+            }
+            return responses.default;
+        }
+
+        // Game functions
+        function startBreathingExercise() {
+            document.getElementById('breathingGame').style.display = 'block';
+            document.getElementById('breathingGame').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function toggleBreathing() {
+            if (!isBreathing) {
+                isBreathing = true;
+                breathingStartTime = Date.now();
+                document.getElementById('breathingStart').textContent = 'Stop';
+                startBreathingAnimation();
+            } else {
+                isBreathing = false;
+                document.getElementById('breathingStart').textContent = 'Start';
+                clearInterval(breathingInterval);
+                document.getElementById('breathingText').textContent = 'Click Start';
+            }
+        }
+
+        function startBreathingAnimation() {
+            const circle = document.getElementById('breathingCircle');
+            const text = document.getElementById('breathingText');
+            let phase = 'inhale';
+            
+            breathingInterval = setInterval(() => {
+                if (phase === 'inhale') {
+                    circle.classList.add('inhale');
+                    circle.classList.remove('exhale');
+                    text.textContent = 'Inhale';
+                    phase = 'exhale';
+                } else {
+                    circle.classList.add('exhale');
+                    circle.classList.remove('inhale');
+                    text.textContent = 'Exhale';
+                    phase = 'inhale';
+                    breathingRounds++;
+                    document.getElementById('breathingRounds').textContent = breathingRounds;
+                }
+                
+                // Update time
+                const elapsed = Math.floor((Date.now() - breathingStartTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                document.getElementById('breathingTime').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }, 4000);
+        }
+
+        function startPuzzleGame() {
+            document.getElementById('puzzleGame').style.display = 'block';
+            document.getElementById('puzzleGame').scrollIntoView({ behavior: 'smooth' });
+            initializePuzzle();
+        }
+
+        function initializePuzzle() {
+            puzzleState = Array.from({length: 15}, (_, i) => i + 1);
+            puzzleState.push(null); // Empty space
+            puzzleMoves = 0;
+            puzzleStartTime = Date.now();
+            renderPuzzle();
+        }
+
+        function renderPuzzle() {
+            const grid = document.getElementById('puzzleGrid');
+            grid.innerHTML = '';
+            
+            puzzleState.forEach((value, index) => {
+                const piece = document.createElement('div');
+                piece.classList.add('puzzle-piece');
+                if (value === null) {
+                    piece.classList.add('empty');
+                } else {
+                    piece.textContent = value;
+                    piece.onclick = () => movePuzzlePiece(index);
+                }
+                grid.appendChild(piece);
+            });
+        }
+
+        function movePuzzlePiece(index) {
+            const emptyIndex = puzzleState.indexOf(null);
+            const validMoves = getValidMoves(emptyIndex);
+            
+            if (validMoves.includes(index)) {
+                puzzleState[emptyIndex] = puzzleState[index];
+                puzzleState[index] = null;
+                puzzleMoves++;
+                document.getElementById('puzzleMoves').textContent = puzzleMoves;
+                renderPuzzle();
+                
+                // Update time
+                const elapsed = Math.floor((Date.now() - puzzleStartTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                document.getElementById('puzzleTime').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                // Check if solved
+                if (isPuzzleSolved()) {
+                    setTimeout(() => alert('Congratulations! Puzzle solved!'), 100);
+                }
+            }
+        }
+
+        function getValidMoves(emptyIndex) {
+            const moves = [];
+            const row = Math.floor(emptyIndex / 4);
+            const col = emptyIndex % 4;
+            
+            if (row > 0) moves.push(emptyIndex - 4); // Up
+            if (row < 3) moves.push(emptyIndex + 4); // Down
+            if (col > 0) moves.push(emptyIndex - 1); // Left
+            if (col < 3) moves.push(emptyIndex + 1); // Right
+            
+            return moves;
+        }
+
+        function isPuzzleSolved() {
+            for (let i = 0; i < 15; i++) {
+                if (puzzleState[i] !== i + 1) return false;
+            }
+            return puzzleState[15] === null;
+        }
+
+        function shufflePuzzle() {
+            // Shuffle the puzzle state
+            for (let i = 0; i < 1000; i++) {
+                const emptyIndex = puzzleState.indexOf(null);
+                const validMoves = getValidMoves(emptyIndex);
+                const randomMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+                puzzleState[emptyIndex] = puzzleState[randomMove];
+                puzzleState[randomMove] = null;
+            }
+            puzzleMoves = 0;
+            puzzleStartTime = Date.now();
+            document.getElementById('puzzleMoves').textContent = '0';
+            document.getElementById('puzzleTime').textContent = '0:00';
+            renderPuzzle();
+        }
+
+        function startDrawingTherapy() {
+            document.getElementById('drawingGame').style.display = 'block';
+            document.getElementById('drawingGame').scrollIntoView({ behavior: 'smooth' });
+            initializeDrawing();
+        }
+
+        function initializeDrawing() {
+            const canvas = document.getElementById('drawingCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            const canvas = document.getElementById('drawingCanvas');
+            const ctx = canvas.getContext('2d');
+            const rect = canvas.getBoundingClientRect();
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            const canvas = document.getElementById('drawingCanvas');
+            const ctx = canvas.getContext('2d');
+            const rect = canvas.getBoundingClientRect();
+            
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = currentDrawingColor;
+            
+            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        function setDrawingColor(color) {
+            currentDrawingColor = color;
+            document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function clearCanvas() {
+            const canvas = document.getElementById('drawingCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function saveDrawing() {
+            const canvas = document.getElementById('drawingCanvas');
+            const dataURL = canvas.toDataURL();
+            const link = document.createElement('a');
+            link.download = 'mindmed-art-therapy.png';
+            link.href = dataURL;
+            link.click();
+        }
+
+        function startMemoryGame() {
+            document.getElementById('memoryGame').style.display = 'block';
+            document.getElementById('memoryGame').scrollIntoView({ behavior: 'smooth' });
+            initializeMemoryGame();
+        }
+
+        function initializeMemoryGame() {
+            const symbols = ['🌟', '🎵', '🌈', '🦋', '🌸', '🎨', '🌙', '⭐'];
+            memoryCards = [...symbols, ...symbols];
+            shuffleArray(memoryCards);
+            memoryScore = 0;
+            memoryAttempts = 0;
+            memoryFlippedCards = [];
+            
+            document.getElementById('memoryScore').textContent = '0';
+            document.getElementById('memoryAttempts').textContent = '0';
+            
+            renderMemoryGame();
+        }
+
+        function renderMemoryGame() {
+            const grid = document.getElementById('memoryGrid');
+            grid.innerHTML = '';
+            
+            memoryCards.forEach((symbol, index) => {
+                const card = document.createElement('div');
+                card.classList.add('memory-card');
+                card.innerHTML = `
+                    <div class="card-back">?</div>
+                    <div class="card-front">${symbol}</div>
+                `;
+                card.onclick = () => flipMemoryCard(index);
+                grid.appendChild(card);
+            });
+        }
+
+        function flipMemoryCard(index) {
+            const card = document.querySelector(`#memoryGrid .memory-card:nth-child(${index + 1})`);
+            if (card.classList.contains('flipped') || card.classList.contains('matched')) return;
+            
+            card.classList.add('flipped');
+            memoryFlippedCards.push(index);
+            
+            if (memoryFlippedCards.length === 2) {
+                memoryAttempts++;
+                document.getElementById('memoryAttempts').textContent = memoryAttempts;
+                
+                setTimeout(() => {
+                    checkMemoryMatch();
+                }, 1000);
+            }
+        }
+
+        function checkMemoryMatch() {
+            const [first, second] = memoryFlippedCards;
+            const firstCard = document.querySelector(`#memoryGrid .memory-card:nth-child(${first + 1})`);
+            const secondCard = document.querySelector(`#memoryGrid .memory-card:nth-child(${second + 1})`);
+            
+            if (memoryCards[first] === memoryCards[second]) {
+                firstCard.classList.add('matched');
+                secondCard.classList.add('matched');
+                memoryScore++;
+                document.getElementById('memoryScore').textContent = memoryScore;
+                
+                if (memoryScore === 8) {
+                    setTimeout(() => alert('Congratulations! You won the memory game!'), 100);
+                }
+            } else {
+                firstCard.classList.remove('flipped');
+                secondCard.classList.remove('flipped');
+            }
+            
+            memoryFlippedCards = [];
+        }
+
+        function startNewMemoryGame() {
+            initializeMemoryGame();
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function startMoodJournal() {
+            document.getElementById('journalGame').style.display = 'block';
+            document.getElementById('journalGame').scrollIntoView({ behavior: 'smooth' });
+            
+            // Update mood slider display
+            const slider = document.getElementById('moodSlider');
+            const moodValue = document.getElementById('moodValue');
+            slider.oninput = function() {
+                moodValue.textContent = this.value;
+            };
+        }
+
+        function saveJournalEntry() {
+            const mood = document.getElementById('moodSlider').value;
+            const entry = document.getElementById('journalEntry').value;
+            
+            if (!entry.trim()) {
+                alert('Please write something in your journal entry.');
+                return;
+            }
+            
+            const journalEntry = {
+                date: new Date().toISOString(),
+                mood: parseInt(mood),
+                entry: entry,
+                timestamp: Date.now()
+            };
+            
+            journalEntries.push(journalEntry);
+            
+            // Clear the form
+            document.getElementById('moodSlider').value = 5;
+            document.getElementById('moodValue').textContent = '5';
+            document.getElementById('journalEntry').value = '';
+            
+            alert('Journal entry saved successfully!');
+        }
+
+        function viewJournalHistory() {
+            if (journalEntries.length === 0) {
+                alert('No journal entries yet. Start writing to see your history!');
+                return;
+            }
+            
+            let historyHTML = '<h3>Your Journal History</h3>';
+            journalEntries.forEach((entry, index) => {
+                const date = new Date(entry.date).toLocaleDateString();
+                historyHTML += `
+                    <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                        <strong>${date}</strong> - Mood: ${entry.mood}/10<br>
+                        ${entry.entry.substring(0, 100)}${entry.entry.length > 100 ? '...' : ''}
+                    </div>
+                `;
+            });
+            
+            // Create a modal-like display
+            const modal = document.createElement('div');
+            modal.innerHTML = `
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center;">
+                    <div style="background: var(--bg-card); padding: 2rem; border-radius: 20px; max-width: 600px; max-height: 80vh; overflow-y: auto;">
+                        ${historyHTML}
+                        <button onclick="this.parentElement.parentElement.remove()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: var(--primary); color: white; border: none; border-radius: 10px; cursor: pointer;">Close</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function updateSystemStatus(status) {
+            document.getElementById('systemStatus').textContent = status;
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            updateSystemStatus('System Ready');
+            
+            // Initialize drawing canvas
+            setTimeout(() => {
+                if (document.getElementById('drawingCanvas')) {
+                    initializeDrawing();
+                }
+            }, 1000);
+            
+            // Add mood timeline entries periodically
+            setInterval(() => {
+                const moods = ['😊 Feeling great', '😌 Relaxed', '🤔 Thoughtful', '💪 Energized', '🌟 Inspired'];
+                const randomMood = moods[Math.floor(Math.random() * moods.length)];
+                
+                const timeline = document.getElementById('moodTimeline');
+                const newEntry = document.createElement('div');
+                newEntry.classList.add('mood-entry');
+                newEntry.innerHTML = `
+                    <span>${randomMood}</span>
+                    <span class="mood-time">Just now</span>
+                `;
+                timeline.insertBefore(newEntry, timeline.firstChild);
+                
+                // Keep only the last 10 entries
+                while (timeline.children.length > 10) {
+                    timeline.removeChild(timeline.lastChild);
+                }
+            }, 30000); // Every 30 seconds
+        });
+    </script>
+</body>
+</html>
